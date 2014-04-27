@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Menu_list</title>
+<style>
+ul, li {
+    padding: 0;
+    margin: 0;
+}
+#menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 360px;
+    height: 100%;
+    background: #5997ff;
+    height: 720px;
+    overflow: hidden;
+}
+#title li {
+    padding: 10px;
+}
+#channel_list {
+    position: relative;
+    top: 0;
+}
+#channel_list li {
+    box-sizing: border-box;
+    border-bottom: 1px solid #66aaff;
+}
+#channel_list li * {
+    vertical-align: middle;
+}
+#channel_list li span {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 200px;
+}
+#channel_list .focus {
+    outline: 0;
+    text-decoration: none;
+    background: #0077ff;
+    border-bottom: 1px solid #0077ff;
+    -webkit-box-shadow: 0 3px 6px black;
+}
+#hit {
+    position: fixed;
+    top: 0;
+    right: 0;
+}
+</style>
+</head>
+<body>
+    <div id="menu" class="hide">
+        <ul id="title">
+            <li>
+                <img src="" alt="img" width="50" height="50">
+                <span>LOGO</span>
+            </li>
+        </ul>
+        <div id="channel_list_bg">
+            <ul id="channel_list">
+            </ul>
+        </div>
+    </div>
+    <div id="hit">
+        <h3>Action by keyboard</h3>
+        up, down, PgUp, PgDn
+    </div>
+</body>
+<script>
+    var Main = {menuCount: 0, channelsCount: 0};
+
+    var tmp = document.createElement('ul');
+    var tmpArr = [];
+    for (var i = 1; 25 >= i; i++) {
+        var li = document.createElement('li');
+        li.innerHTML = '<img src="" alt="img" width="90" height="90"><span>'+i+'</span>';
+        tmpArr.push(li);
+    };
+
+    var view = document.createElement('ul');
+
+    for (var i = 0; i < 8; i++) {
+        var viewList = tmpArr[i];
+        view.appendChild(viewList);
+    };
+    view.querySelectorAll('li')[0].setAttribute('class', 'focus');
+    document.querySelector('#channel_list').innerHTML = view.innerHTML;
+
+    window.onkeydown = keyboard;
+    function keyboard(e) {
+        if (e.keyCode === 38) {
+            channelSelect('up');
+        }
+        if (e.keyCode === 40) {
+            channelSelect('down');
+        }
+        if (e.keyCode === 33) {
+            console.log('pgUp');
+            channelSelect('pgUp');
+        }
+        if (e.keyCode === 34) {
+            console.log('pgDn');
+            channelSelect('pgDn');
+        }
+    }
+
+    function channelSelect(status) {
+        // document.querySelector('#error').innerHTML = 'channel select';
+        var menuList = document.querySelectorAll('#channel_list li'),
+            menuView = 7;
+        menuList[Main.menuCount].setAttribute('class', '');
+        switch(status) {
+            case 'up':
+                Main.menuCount--;
+                Main.channelsCount--;
+                if (Main.menuCount < 0) {
+                    Main.menuCount = 0;
+                    if (Main.channelsCount < 0) {
+                        Main.channelsCount = 0;
+                        break;
+                    }
+                    var view = document.createElement('ul');
+                    for (var i = Main.channelsCount; i < Main.channelsCount + 8; i++) {
+                        if (i === tmpArr.length) {
+                            break;
+                        }
+                        var viewList = tmpArr[i];
+                        view.appendChild(viewList);
+                    }
+                    document.querySelector('#channel_list').innerHTML = view.innerHTML;
+                }
+            break;
+            case 'down':
+                Main.menuCount++;
+                Main.channelsCount++;
+                if (Main.menuCount > menuView - 1) {
+                    Main.menuCount = menuView - 1;
+                    if (Main.channelsCount >= tmpArr.length) {
+                        Main.channelsCount = tmpArr.length - 1;
+                        break;
+                    }
+                    var view = document.createElement('ul');
+                    for (var i = Main.channelsCount - 6; i < Main.channelsCount + 2; i++) {
+                        if (i === tmpArr.length) {
+                            break;
+                        }
+                        var viewList = tmpArr[i];
+                        view.appendChild(viewList);
+                    }
+                    document.querySelector('#channel_list').innerHTML = view.innerHTML;
+                }
+            break;
+            case 'pgUp':
+                if (Main.channelsCount >= tmpArr.length - 1) {
+                    Main.channelsCount = tmpArr.length - (2*menuView);
+                } else {
+                    Main.channelsCount-= menuView;
+                    if (Main.channelsCount < 0) {
+                        Main.channelsCount = 0;
+                        Main.menuCount = 0;
+                    }
+                }
+                var view = document.createElement('ul');
+                for (var i = Main.channelsCount; i < Main.channelsCount + menuView; i++) {
+                    var viewList = tmpArr[i];
+                    view.appendChild(viewList);
+                }
+                document.querySelector('#channel_list').innerHTML = view.innerHTML;
+            break;
+            case 'pgDn':
+                Main.channelsCount+= menuView;
+                if ((Main.channelsCount + menuView) > tmpArr.length - 1) {
+                    Main.channelsCount = tmpArr.length;
+                    Main.menuCount = menuView - 1;
+                    var view = document.createElement('ul');
+                    for (var i = Main.channelsCount - menuView; i < Main.channelsCount; i++) {
+                        var viewList = tmpArr[i];
+                        view.appendChild(viewList);
+                    }
+                } else {
+                    var view = document.createElement('ul');
+                    for (var i = Main.channelsCount; i < Main.channelsCount + menuView; i++) {
+                        var viewList = tmpArr[i];
+                        view.appendChild(viewList);
+                    }
+                }
+                document.querySelector('#channel_list').innerHTML = view.innerHTML;
+            break;
+            default:
+                Main.menuCount = 0;
+        }
+        document.querySelectorAll('#channel_list li')[Main.menuCount].setAttribute('class', 'focus');
+    }
+</script>
+</html>
